@@ -1,18 +1,35 @@
-name: Basic CI Pipeline
+name: Branch Based CI CD
  
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - dev
+      - main
  
 jobs:
-  build:
+  build-test-deploy:
     runs-on: ubuntu-latest
  
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
  
-    - name: Run test command
+    - name: Build
+      run: echo "Building application..."
+ 
+    - name: Test
       run: |
-        echo "Running CI pipeline"
+        echo "Running tests..."
         cat app.txt
+ 
+    - name: Deploy to DEV
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        echo "CD for DEV branch"
+        bash deploy/deploy-dev.sh
+ 
+    - name: Deploy to PROD
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "CD for MAIN branch"
+        bash deploy/deploy-prod.sh
